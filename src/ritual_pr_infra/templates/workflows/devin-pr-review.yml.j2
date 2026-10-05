@@ -7,10 +7,8 @@ on:
       - {{ event }}
 {%- endfor %}
 {%- if devin.trigger.labels %}
-    labels:
-{%- for label in devin.trigger.labels %}
-      - {{ label }}
-{%- endfor %}
+    # Note: GitHub Actions `on.pull_request` does not support `labels` filter.
+    # Label filtering is implemented via runtime check below.
 {%- endif %}
 
 permissions:
@@ -20,6 +18,8 @@ permissions:
 
 jobs:
   devin-review:
+    if: >
+      {% if devin.trigger.labels %}contains(github.event.pull_request.labels.*.name, '{{ devin.trigger.labels[0] }}'){% else %}true(){% endif %}
     runs-on: ubuntu-latest
 
     steps:

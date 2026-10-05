@@ -23,12 +23,18 @@ def generate_infrastructure(repo_path: Path):
 
     # Copy default config and README
     templates_dir = Path(__file__).parent / "templates"
-    shutil.copy(templates_dir / "config.yml", ritual_pr_dir / "config.yml")
-    shutil.copy(templates_dir / "README.md", ritual_pr_dir / "README.md")
+    config_dest = ritual_pr_dir / "config.yml"
+    if not config_dest.exists():
+        shutil.copy(templates_dir / "config.yml", config_dest)
+    readme_dest = ritual_pr_dir / "README.md"
+    if not readme_dest.exists():
+        shutil.copy(templates_dir / "README.md", readme_dest)
 
     # Copy default prompts
     for prompt_file in (templates_dir / "prompts").glob("*.md"):
-        shutil.copy(prompt_file, shared_prompts_dir / prompt_file.name)
+        dest = shared_prompts_dir / prompt_file.name
+        if not dest.exists():
+            shutil.copy(prompt_file, dest)
 
     # Load config
     with open(ritual_pr_dir / "config.yml") as f:
