@@ -7,14 +7,14 @@ on:
       - {{ event }}
 {%- endfor %}
 {%- if claude.trigger.labels %}
-    labels:
-{%- for label in claude.trigger.labels %}
-      - {{ label }}
-{%- endfor %}
+    # Note: GitHub Actions `on.pull_request` does not support `labels` filter.
+    # Label filtering is implemented via runtime check below.
 {%- endif %}
 
 jobs:
   claude-review:
+    if: >
+      {% if claude.trigger.labels %}contains(github.event.pull_request.labels.*.name, '{{ claude.trigger.labels[0] }}'){% else %}true(){% endif %}
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write

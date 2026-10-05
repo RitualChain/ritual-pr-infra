@@ -7,14 +7,14 @@ on:
       - {{ event }}
 {%- endfor %}
 {%- if manus.trigger.labels %}
-    labels:
-{%- for label in manus.trigger.labels %}
-      - {{ label }}
-{%- endfor %}
+    # Note: GitHub Actions `on.pull_request` does not support `labels` filter.
+    # Label filtering is implemented via runtime check below.
 {%- endif %}
 
 jobs:
   manus-review:
+    if: >
+      {% if manus.trigger.labels %}contains(github.event.pull_request.labels.*.name, '{{ manus.trigger.labels[0] }}'){% else %}true(){% endif %}
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
